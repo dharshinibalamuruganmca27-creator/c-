@@ -1,0 +1,38 @@
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+// 2^31 bits / 8 bits per byte = 268,435,456 bytes (~256 MB)
+// Using a vector of uint8_t to manually manage bits
+unsigned char seen[268435456]; 
+
+int main() {
+    unsigned int N, S, P, Q;
+    if (!(cin >> N >> S >> P >> Q)) return 0;
+
+    unsigned int mod = 1u << 31;
+    unsigned int current = S % mod;
+    unsigned int count = 0;
+
+    for (unsigned int i = 0; i < N; i++) {
+        // Calculate byte index and bit position
+        unsigned int byte_idx = current >> 3;
+        unsigned char bit_mask = 1 << (current & 7);
+
+        // If not seen, mark it and increment count
+        if (!(seen[byte_idx] & bit_mask)) {
+            seen[byte_idx] |= bit_mask;
+            count++;
+        } else {
+            // Cycle detected, no more distinct numbers can be found
+            break;
+        }
+
+        // Generate next element: a[i] = a[i-1]*P+Q (modulo 2^31)
+        current = (1ULL * current * P + Q) % mod;
+    }
+
+    cout << count << endl;
+    return 0;
+}
